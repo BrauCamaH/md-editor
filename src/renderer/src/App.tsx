@@ -3,7 +3,6 @@ import { AppBar, Toolbar, Button } from '@mui/material'
 import Preview from './components/Preview'
 import Editor from '@monaco-editor/react'
 
-
 import './App.css'
 
 export default function App() {
@@ -44,6 +43,7 @@ export default function App() {
       </AppBar>
       <div className="app">
         <Editor
+          className='editor'
           options={{
             wordWrap: true,
             scrollBeyondLastLine: false,

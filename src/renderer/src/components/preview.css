@@ -2,9 +2,10 @@
   flex: 0 0 50%;
   padding: 12px;
   box-sizing: border-box;
-  overflow: auto;
   font-size: 0.8rem;
   color: #abb2bf;
+  overflow-y: scroll;
+  height: 100vh;
 }
 
 .preview.markdown-body pre {
