@@ -1,7 +1,7 @@
-appId: com.electron.app
-productName: md-editor
+appId: com.braucamah.md-editor
+productName: MD Editor
 directories:
-  buildResources: build
+  buildResources: resources
 files:
   - '!**/.vscode/*'
   - '!src/*'
