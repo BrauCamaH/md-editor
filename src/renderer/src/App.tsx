@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { AppBar, Toolbar, Button } from '@mui/material'
-import Preview from './components/Preview'
 import Editor from '@monaco-editor/react'
-
+import Preview from '@renderer/components/Preview'
+import Api from '@models/ApiInterface'
 
 import './App.css'
+
+const api = window.api as Api
 
 export default function App() {
   const [value, setValue] = useState('')
@@ -12,13 +14,13 @@ export default function App() {
   const [filePath, setFilePath] = React.useState()
 
   const readFile = async () => {
-    const response = await window.api.readFile()
+    const response = await api.readFile()
     setValue(response.data)
     setFilePath(response.filePath)
   }
 
   const writeFile = async () => {
-    await window.api.writeFile({ name: filePath, content: value })
+    await api.writeFile({ name: filePath, content: value })
   }
   return (
     <div>
@@ -44,6 +46,7 @@ export default function App() {
       </AppBar>
       <div className="app">
         <Editor
+          className="editor"
           options={{
             wordWrap: true,
             scrollBeyondLastLine: false,
@@ -56,9 +59,11 @@ export default function App() {
           value={value}
           language="markdown"
           height="100vh"
-          onChange={setValue}
+          onChange={(e) => {
+            setValue(e || '')
+          }}
         />
-          <Preview doc={value || ''} />
+        <Preview doc={value || ''} />
       </div>
     </div>
   )
