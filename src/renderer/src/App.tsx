@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { AppBar, Toolbar, Button, Typography, IconButton } from '@mui/material'
 import { Clear } from '@mui/icons-material'
 
@@ -116,12 +116,12 @@ export default function App() {
             editor.onDidScrollChange((e) => {
               console.log(e)
               console.log(previewRef)
-              previewRef.current?.scrollTo({top: e.scrollTop})
+              previewRef.current?.scrollTo({ top: e.scrollTop })
             })
             console.log(editor)
           }}
         />
-        <div id='preview' ref={previewRef}>
+        <div id="preview" ref={previewRef}>
           <Preview doc={value || ''} />
         </div>
       </div>
