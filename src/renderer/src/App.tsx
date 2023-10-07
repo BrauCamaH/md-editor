@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { AppBar, Toolbar, Button, Typography, IconButton } from '@mui/material'
 import { Clear } from '@mui/icons-material'
 
@@ -11,6 +11,8 @@ import './App.css'
 const api = window.api as Api
 
 export default function App() {
+  const previewRef = useRef<HTMLDivElement>(null)
+
   const [value, setValue] = useState('')
   const [editorChanged, setEditorChanged] = useState(false)
 
@@ -42,7 +44,7 @@ export default function App() {
 
   return (
     <div>
-      <AppBar color="transparent" position="relative">
+      <AppBar id="appbar" color="inherit" position="sticky">
         <Toolbar
           sx={{
             flexDirection: 'row',
@@ -111,10 +113,17 @@ export default function App() {
             editor.onKeyUp(() => {
               setEditorChanged(true)
             })
+            editor.onDidScrollChange((e) => {
+              console.log(e)
+              console.log(previewRef)
+              previewRef.current?.scrollTo({top: e.scrollTop})
+            })
             console.log(editor)
           }}
         />
-        <Preview doc={value || ''} />
+        <div id='preview' ref={previewRef}>
+          <Preview doc={value || ''} />
+        </div>
       </div>
     </div>
   )

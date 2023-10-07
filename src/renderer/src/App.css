@@ -3,12 +3,26 @@
   display: flex;
   flex-grow: 1 ;
   flex-direction: row;
-  height: 100%;
+}
+
+#appbar{
+  background-color:#0D1117;
 }
 
 .editor {
-  width: 100%;
+  width: 50vw;
   box-sizing: border-box;
+  height: 100vh;
+}
+
+#preview{
+  flex: 0 0 50%;
+  padding: 12px;
+  box-sizing: border-box;
+  font-size: 0.8rem;
+  color: #abb2bf;
+  overflow-y: scroll;
+  height: 100vh;
 }
 
 .toolbar-button{
