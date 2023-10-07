@@ -11,7 +11,7 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {icon}),
+    ...(process.platform === 'linux' ? { icon } : { icon }),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -91,5 +91,21 @@ ipcMain.handle('writeFile', async (_, args) => {
     await fs.writeFile(name, content)
   } catch (error) {
     console.log(error)
+  }
+})
+
+ipcMain.handle('saveAs', async (_, args) => {
+  const file = await dialog.showSaveDialog({
+    filters: [{ name: 'File', extensions: ['md'] }],
+    buttonLabel: 'Save'
+  })
+
+  const { content } = args
+
+  try {
+    await fs.writeFile(file.filePath || '', content)
+    return { filePath: file.filePath }
+  } catch (error) {
+    return new Error('Cannot Save File')
   }
 })

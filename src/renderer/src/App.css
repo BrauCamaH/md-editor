@@ -11,3 +11,6 @@
   box-sizing: border-box;
 }
 
+.toolbar-button{
+  margin: 10px;
+}
