@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
+import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { promises as fs } from 'fs'
@@ -77,9 +77,8 @@ ipcMain.handle('readFile', async () => {
   })
   console.log(filePath)
   const data = await fs.readFile(filePath.filePaths[0], 'utf8')
-  console.log(data)
-
-  return { data, filePath: filePath.filePaths[0] }
+  const fileName = path.basename(filePath.filePaths[0])
+  return { data, fileName, filePath: filePath.filePaths[0] }
 })
 
 ipcMain.handle('writeFile', async (_, args) => {
@@ -104,7 +103,9 @@ ipcMain.handle('saveAs', async (_, args) => {
 
   try {
     await fs.writeFile(file.filePath || '', content)
-    return { filePath: file.filePath }
+    const fileName = path.basename(file.filePath || '')
+
+    return { fileName, filePath: file.filePath }
   } catch (error) {
     return new Error('Cannot Save File')
   }

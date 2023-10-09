@@ -1,9 +1,11 @@
 import React, { useRef, useState } from 'react'
-import { AppBar, Toolbar, Button, Typography, IconButton } from '@mui/material'
+import { AppBar, Toolbar, Button, Typography, IconButton, Menu, MenuItem } from '@mui/material'
 import { Clear } from '@mui/icons-material'
 
 import Editor from '@monaco-editor/react'
 import Preview from '@renderer/components/Preview'
+import EditorToolbar from '@renderer/components/EditorToolbar'
+
 import Api from '@models/ApiInterface'
 
 import './App.css'
@@ -14,6 +16,8 @@ export default function App() {
   const previewRef = useRef<HTMLDivElement>(null)
 
   const [value, setValue] = useState('')
+  const [fileName, setFileName] = useState('')
+  const [editor, setEditor] = useState()
   const [editorChanged, setEditorChanged] = useState(false)
 
   const [filePath, setFilePath] = React.useState('')
@@ -22,6 +26,7 @@ export default function App() {
     const response = await api.readFile()
     setValue(response.data)
     setFilePath(response.filePath)
+    setFileName(response.fileName)
     setEditorChanged(false)
   }
 
@@ -31,15 +36,77 @@ export default function App() {
   }
 
   const saveAs = async () => {
-    const res = await api.saveAs({ name: 'example.md', content: value })
+    const res = await api.saveAs({ content: value })
     setFilePath(res.filePath)
+    setFileName(res.fileName)
     setEditorChanged(false)
   }
 
   const clear = () => {
     setFilePath('')
+    setFileName('')
     setValue('')
     setEditorChanged(false)
+  }
+
+  function FileMenu() {
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+    const open = Boolean(anchorEl)
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget)
+    }
+    const handleClose = () => {
+      setAnchorEl(null)
+    }
+    return (
+      <>
+        <Button
+          color="primary"
+          aria-controls={open ? 'basic-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+          onClick={handleClick}
+        >
+          File
+        </Button>
+        <Menu
+          id="basic-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button'
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              readFile()
+              handleClose()
+            }}
+          >
+            Open File
+          </MenuItem>
+          <MenuItem
+            disabled={!filePath}
+            onClick={() => {
+              writeFile()
+              handleClose()
+            }}
+          >
+            Save File
+          </MenuItem>
+          <MenuItem
+            title="Save As"
+            onClick={() => {
+              saveAs()
+              handleClose()
+            }}
+          >
+            Save As
+          </MenuItem>
+        </Menu>
+      </>
+    )
   }
 
   return (
@@ -51,7 +118,7 @@ export default function App() {
             justifyContent: 'space-between'
           }}
         >
-          <Typography color="primary">{filePath || 'untitled'}</Typography>
+          <Typography color="primary">{fileName || 'untitled'}</Typography>
           {editorChanged ? <Typography color="yellow">*</Typography> : ''}
           {(filePath !== '' || undefined) && (
             <IconButton color="error" onClick={clear}>
@@ -60,35 +127,10 @@ export default function App() {
           )}
 
           <div>
-            <Button
-              style={{ margin: '5px' }}
-              variant="outlined"
-              onClick={() => {
-                readFile()
-              }}
-            >
-              Open File
-            </Button>
-            <Button
-              disabled={!filePath}
-              style={{ margin: '5px' }}
-              variant="outlined"
-              onClick={() => {
-                writeFile()
-              }}
-            >
-              Save File
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                saveAs()
-              }}
-            >
-              Save As
-            </Button>
+            <FileMenu />
           </div>
         </Toolbar>
+        <EditorToolbar editor={editor} />
       </AppBar>
       <div className="app">
         <Editor
@@ -106,19 +148,25 @@ export default function App() {
           value={value}
           language="markdown"
           height="100vh"
-          onChange={(e) => {
+          onChange={(e, editor) => {
             setValue(e || '')
+
+            console.log(editor)
           }}
           onMount={(editor) => {
-            editor.onKeyUp(() => {
+            console.log(editor)
+            editor.onDidChangeModelContent(() => {
               setEditorChanged(true)
             })
+            setEditor(editor)
             editor.onDidScrollChange((e) => {
-              console.log(e)
-              console.log(previewRef)
               previewRef.current?.scrollTo({ top: e.scrollTop })
+              editor.onKeyDown((e) => {
+                if (e.keyCode === 49 /** KeyCode.KeyS */ && e.ctrlKey) {
+                  writeFile()
+                }
+              })
             })
-            console.log(editor)
           }}
         />
         <div id="preview" ref={previewRef}>
