@@ -148,24 +148,26 @@ export default function App() {
           value={value}
           language="markdown"
           height="100vh"
-          onChange={(e, editor) => {
+          onChange={(e) => {
             setValue(e || '')
-
-            console.log(editor)
           }}
           onMount={(editor) => {
-            console.log(editor)
             editor.onDidChangeModelContent(() => {
               setEditorChanged(true)
             })
             setEditor(editor)
             editor.onDidScrollChange((e) => {
-              previewRef.current?.scrollTo({ top: e.scrollTop })
-              editor.onKeyDown((e) => {
-                if (e.keyCode === 49 /** KeyCode.KeyS */ && e.ctrlKey) {
-                  writeFile()
-                }
-              })
+              const divElement = previewRef.current
+              if (!divElement) return
+
+              const maxScrollTop = e.scrollHeight
+              const maxScrollTop2 = divElement.scrollHeight
+              const percTop = maxScrollTop2 / maxScrollTop
+              const newScrollTop = Math.ceil(percTop * e.scrollTop)
+
+              console.log(percTop, e.scrollTop, newScrollTop)
+
+              divElement?.scrollTo({ top: newScrollTop })
             })
           }}
         />
