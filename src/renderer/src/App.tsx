@@ -1,6 +1,15 @@
-import React, { useRef, useState } from 'react'
-import { AppBar, Toolbar, Button, Typography, IconButton, Menu, MenuItem } from '@mui/material'
-import { Clear } from '@mui/icons-material'
+import React, { useEffect, useRef, useState } from 'react'
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItem
+} from '@mui/material'
+import { Circle, Clear } from '@mui/icons-material'
 
 import Editor from '@monaco-editor/react'
 import Preview from '@renderer/components/Preview'
@@ -11,6 +20,26 @@ import Api from '@models/ApiInterface'
 import './App.css'
 
 const api = window.api as Api
+function useKey(key, cb) {
+  const callback = useRef(cb)
+
+  useEffect(() => {
+    callback.current = cb
+  })
+
+  useEffect(() => {
+    function handle(event) {
+      if (event.code === key) {
+        callback.current(event)
+      } else if (key === 'ctrls' && event.key === 's' && event.ctrlKey) {
+        callback.current(event)
+      }
+    }
+
+    document.addEventListener('keydown', handle)
+    return () => document.removeEventListener('keydown', handle)
+  }, [key])
+}
 
 export default function App() {
   const previewRef = useRef<HTMLDivElement>(null)
@@ -21,6 +50,7 @@ export default function App() {
   const [editorChanged, setEditorChanged] = useState(false)
 
   const [filePath, setFilePath] = React.useState('')
+  useKey('ctrls', () => (filePath ? writeFile() : saveAs()))
 
   const readFile = async () => {
     const response = await api.readFile()
@@ -58,6 +88,7 @@ export default function App() {
     const handleClose = () => {
       setAnchorEl(null)
     }
+
     return (
       <>
         <Button
@@ -114,17 +145,25 @@ export default function App() {
       <AppBar id="appbar" color="inherit" position="sticky">
         <Toolbar
           sx={{
-            flexDirection: 'row',
             justifyContent: 'space-between'
           }}
         >
-          <Typography color="primary">{fileName || 'untitled'}</Typography>
-          {editorChanged ? <Typography color="yellow">*</Typography> : ''}
-          {(filePath !== '' || undefined) && (
-            <IconButton color="error" onClick={clear}>
-              <Clear />
-            </IconButton>
-          )}
+          <ListItem>
+            <Typography color="primary">{fileName || 'untitled'}</Typography>
+            {editorChanged ? (
+              <Circle
+                color="warning"
+                style={{ marginLeft: '4px', marginRight: '8px', width: '0.6rem' }}
+              />
+            ) : (
+              ''
+            )}
+            {(filePath !== '' || undefined) && (
+              <IconButton color="error" onClick={clear}>
+                <Clear />
+              </IconButton>
+            )}
+          </ListItem>
 
           <div>
             <FileMenu />
@@ -140,6 +179,7 @@ export default function App() {
             wordWrap: true,
             scrollBeyondLastLine: false,
             lineNumbers: false,
+            folding: false,
             minimap: {
               enabled: false
             }
@@ -150,22 +190,18 @@ export default function App() {
           height="100vh"
           onChange={(e) => {
             setValue(e || '')
+
+            setEditorChanged(true)
           }}
           onMount={(editor) => {
-            editor.onDidChangeModelContent(() => {
-              setEditorChanged(true)
-            })
             setEditor(editor)
             editor.onDidScrollChange((e) => {
               const divElement = previewRef.current
               if (!divElement) return
-
               const maxScrollTop = e.scrollHeight
               const maxScrollTop2 = divElement.scrollHeight
               const percTop = maxScrollTop2 / maxScrollTop
               const newScrollTop = Math.ceil(percTop * e.scrollTop)
-
-              console.log(percTop, e.scrollTop, newScrollTop)
 
               divElement?.scrollTo({ top: newScrollTop })
             })
