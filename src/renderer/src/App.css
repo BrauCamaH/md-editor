@@ -23,6 +23,7 @@
   color: #abb2bf;
   overflow-y: scroll;
   height: 100vh;
+  margin-bottom: 10px;
 }
 
 .toolbar-button{

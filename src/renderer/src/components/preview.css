@@ -5,6 +5,7 @@
   font-size: 0.8rem;
   color: #abb2bf;
   height: 100vh;
+  margin: 10px;
 }
 
 .preview.markdown-body pre {

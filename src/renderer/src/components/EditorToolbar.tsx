@@ -108,7 +108,7 @@ export default function EditorToobar({ editor }: ToolbalProps) {
 
   const itemsToolbar = [
     { icon: <Code />, beforeSelection: '```\n', afterSelection: '\n```' },
-    { icon: <InsertLink />, beforeSelection: '[]', afterSelection: '\n```' },
+    { icon: <InsertLink />, beforeSelection: '[link](', afterSelection: ')' },
     { icon: <FormatQuote />, beforeSelection: `> `, afterSelection: '' },
     { icon: <Image />, beforeSelection: `![alt text](`, afterSelection: `)` },
     { icon: <FormatListBulleted />, beforeSelection: `* `, afterSelection: '' },
