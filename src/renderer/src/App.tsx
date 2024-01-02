@@ -18,6 +18,7 @@ import EditorToolbar from '@renderer/components/EditorToolbar'
 import Api from '@models/ApiInterface'
 
 import './App.css'
+import CloudinaryMenu from '@renderer/components/CloudinaryMenu'
 
 const api = window.api as Api
 function useKey(key, cb) {
@@ -164,9 +165,11 @@ export default function App() {
               </IconButton>
             )}
           </ListItem>
-
           <div>
-            <FileMenu />
+            <ListItem>
+              <FileMenu />
+              <CloudinaryMenu />
+            </ListItem>
           </div>
         </Toolbar>
         <EditorToolbar editor={editor} />

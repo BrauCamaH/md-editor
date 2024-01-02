@@ -123,8 +123,9 @@ export default function EditorToobar({ editor }: ToolbalProps) {
     <div>
       <Toolbar>
         <Headings />
-        {itemsToolbar.map((item) => (
+        {itemsToolbar.map((item, i) => (
           <IconButton
+            key={i}
             style={{ marginLeft: '5px' }}
             color="secondary"
             size="small"
