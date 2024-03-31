@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
+import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { promises as fs } from 'fs'
@@ -11,7 +11,7 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {icon}),
+    ...(process.platform === 'linux' ? { icon } : { icon }),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -41,7 +41,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.braucamah.md-editor')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -77,9 +77,8 @@ ipcMain.handle('readFile', async () => {
   })
   console.log(filePath)
   const data = await fs.readFile(filePath.filePaths[0], 'utf8')
-  console.log(data)
-
-  return { data, filePath: filePath.filePaths[0] }
+  const fileName = path.basename(filePath.filePaths[0])
+  return { data, fileName, filePath: filePath.filePaths[0] }
 })
 
 ipcMain.handle('writeFile', async (_, args) => {
@@ -91,5 +90,23 @@ ipcMain.handle('writeFile', async (_, args) => {
     await fs.writeFile(name, content)
   } catch (error) {
     console.log(error)
+  }
+})
+
+ipcMain.handle('saveAs', async (_, args) => {
+  const file = await dialog.showSaveDialog({
+    filters: [{ name: 'File', extensions: ['md'] }],
+    buttonLabel: 'Save'
+  })
+
+  const { content } = args
+
+  try {
+    await fs.writeFile(file.filePath || '', content)
+    const fileName = path.basename(file.filePath || '')
+
+    return { fileName, filePath: file.filePath }
+  } catch (error) {
+    return new Error('Cannot Save File')
   }
 })

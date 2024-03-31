@@ -4,7 +4,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   readFile: () => ipcRenderer.invoke('readFile'),
-  writeFile: (args) => ipcRenderer.invoke('writeFile', args)
+  writeFile: (args) => ipcRenderer.invoke('writeFile', args),
+  saveAs: (args) => ipcRenderer.invoke('saveAs', args)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

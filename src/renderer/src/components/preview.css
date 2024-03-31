@@ -4,8 +4,8 @@
   box-sizing: border-box;
   font-size: 0.8rem;
   color: #abb2bf;
-  overflow-y: scroll;
   height: 100vh;
+  margin: 10px;
 }
 
 .preview.markdown-body pre {
